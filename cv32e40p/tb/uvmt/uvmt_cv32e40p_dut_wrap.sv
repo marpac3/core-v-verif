@@ -151,7 +151,9 @@ module uvmt_cv32e40p_dut_wrap
          .clk_i                  ( clknrst_if.clk                 ),
          .rst_ni                 ( clknrst_if.reset_n             ),
 
-         .pulp_clock_en_i        ( '0),//core_cntrl_if.pulp_clock_en    ),
+         // The testbench has no cluster clock control. Keep the clock enabled, as
+         // cv32e40p_sleep_unit.sv requires with COREV_CLUSTER.
+         .pulp_clock_en_i        ( '1                             ),
          .scan_cg_en_i           ( core_cntrl_if.scan_cg_en       ),
 
          .boot_addr_i            ( core_cntrl_if.boot_addr        ),
