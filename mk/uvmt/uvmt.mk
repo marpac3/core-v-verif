@@ -70,6 +70,11 @@ UVM_PLUSARGS ?=
 CV_SIMULATOR ?= unsim
 SIMULATOR    ?= $(CV_SIMULATOR)
 
+# ISS=GVSOC asks for the GVSOC reference model, so USE_ISS defaults to YES
+ifeq ($(ISS),GVSOC)
+USE_ISS ?= YES
+endif
+
 # If USE_ISS is not specified, it will decide by default to enable the ISS if imperas_home is defined
 ifndef USE_ISS
 ifneq ($(IMPERAS_HOME),)
@@ -78,6 +83,17 @@ else
 USE_ISS = NO
 endif
 $(info Info: USE_ISS is not specified when invoking make command, defaulting USE_ISS to $(USE_ISS) (check for IMPERAS_HOME in your environment))
+endif
+
+# Reference model when USE_ISS=YES: IMPERAS (ImperasDV) or GVSOC
+ISS ?= IMPERAS
+ifeq ($(filter IMPERAS GVSOC,$(ISS)),)
+$(error ISS=$(ISS) is not supported, use IMPERAS or GVSOC)
+endif
+ifeq ($(ISS),GVSOC)
+ifneq ($(SIMULATOR),vsim)
+$(error ISS=GVSOC is supported with SIMULATOR=vsim only)
+endif
 endif
 
 # Common configuration variables

@@ -146,10 +146,15 @@ VLOG_FLAGS += +define+$(CV_CORE_UC)_CORE_LOG
 VLOG_FLAGS += +define+UVM
 ifeq ($(call IS_YES,$(USE_ISS)),YES)
 VLOG_FLAGS += +define+USE_ISS
+ifeq ($(ISS),GVSOC)
+VLOG_FLAGS += +define+USE_GVSOC
+VLOG_FILE_LIST_IDV = -f $(DV_UVMT_PATH)/gvsoc.flist
+else
 VLOG_FLAGS += +define+USE_IMPERASDV
 VLOG_FILE_LIST_IDV = -f $(DV_UVMT_PATH)/imperas_dv.flist
 ifeq ($(call IS_YES,$(COV)),YES)
 VLOG_FLAGS += +define+IMPERAS_COV
+endif
 endif
 endif
 ifeq ($(call IS_YES,$(COV)),YES)
@@ -186,10 +191,14 @@ VSIM_UVM_ARGS      = +incdir+$(UVM_HOME)/src $(UVM_HOME)/src/uvm_pkg.sv
 
 ifeq ($(call IS_YES,$(USE_ISS)),YES)
 VSIM_FLAGS += +USE_ISS
+ifeq ($(ISS),GVSOC)
+VSIM_FLAGS += -sv_lib $(basename $(GVSOC_RVVI_MODEL))
+else
 VSIM_FLAGS += +USE_IMPERASDV
 VSIM_FLAGS += -sv_lib $(basename $(IMPERAS_DV_MODEL))
 ifeq ($(call IS_YES,$(COV)),YES)
 VSIM_FLAGS += +IDV_TRACE2COV=1
+endif
 endif
 else
 VSIM_FLAGS += +DISABLE_OVPSIM
@@ -584,6 +593,39 @@ gen_ovpsim_ic:
 	#@echo "--extlib refRoot/cpu/cat=imperas.com/intercept/cpuContextAwareTracer/1.0"  >> $(SIM_RUN_RESULTS)/ovpsim.ic
 	#@echo "--override refRoot/cpu/cat/show_changes=T" >> $(SIM_RUN_RESULTS)/ovpsim.ic
 	#@echo "--override refRoot/cpu/cat/definitions_file=${IMPERAS_HOME}/lib/$(IMPERAS_ARCH)/ImperasLib/riscv.ovpworld.org/processor/riscv/1.0/csr_context_info.lis" >> $(SIM_RUN_RESULTS)/ovpsim.ic
+
+################################################################################
+# With ISS=GVSOC, gvrun writes the platform configuration of the test program
+# from the gvsoc entry of the configuration yaml, and the bridge reads it from
+# GVSOC_CONFIG. A +mtvec_addr=<value> test plusarg drives mtvec_addr_i of the
+# core, so it is passed to gvrun as the mtvec_addr parameter, which is 0 when
+# the test has none.
+GVSOC_CONFIG_DIR    = $(abspath $(SIM_RUN_RESULTS))/gvsoc
+GVSOC_MTVEC_PLUSARG = $(filter +mtvec_addr=%,$(TEST_PLUSARGS))
+
+gen_gvsoc_config:
+	@if [ -z "$(CFG_GVSOC)" ]; then \
+		echo "ERROR: configuration $(CFG) has no gvsoc entry, it is not supported by ISS=GVSOC"; \
+		exit 1; \
+	fi
+	$(MKDIR_P) $(GVSOC_CONFIG_DIR)
+	$(GVSOC_INSTALL)/bin/gvrun \
+		--target-dir=$(GVSOC_BRIDGE_HOME)/gvsoc \
+		$(CFG_GVSOC) \
+		--work-dir=$(GVSOC_CONFIG_DIR) \
+		--parameter binary=$(SIM_TEST_PROGRAM_RESULTS)/$(TEST_PROGRAM)$(OPT_RUN_INDEX_SUFFIX).elf \
+		$(subst +mtvec_addr=,--parameter mtvec_addr=,$(GVSOC_MTVEC_PLUSARG)) \
+		--parameter stop_on_exit=false \
+		$(GVSOC_PREPARE_FLAGS) \
+		prepare
+
+ifeq ($(call IS_YES,$(USE_ISS)),YES)
+ifeq ($(ISS),GVSOC)
+VSIM_RUN_PREREQ += gen_gvsoc_config
+export GVSOC_BRIDGE_HOME
+export GVSOC_CONFIG = $(GVSOC_CONFIG_DIR)/gvsoc_config.json
+endif
+endif
 
 # Target to create work directory in $(VSIM_RESULTS)/
 lib: mk_vsim_dir $(CV_CORE_PKG) $(SVLIB_PKG) $(TBSRC_PKG) $(TBSRC)

@@ -177,6 +177,14 @@ OVP_MODEL_DPI   = $(DV_OVPM_MODEL)/bin/Linux64/imperas_CV32.dpi.so
 IMPERAS_DV_MODEL = $(IMPERAS_HOME)/lib/$(IMPERAS_ARCH)/ImperasLib/imperas.com/verification/riscv/1.0/model.so
 
 ###############################################################################
+# GVSOC reference model (ISS=GVSOC)
+# GVSOC_INSTALL:     GVSOC installation, built with the modules of the bridge
+#                    (make build MODULES=$(GVSOC_BRIDGE_HOME)/gvsoc)
+# GVSOC_BRIDGE_HOME: RVVI bridge of the CV32E40P model of GVSOC
+# GVSOC_RVVI_MODEL:  RVVI-API library of the bridge
+GVSOC_RVVI_MODEL ?= $(GVSOC_BRIDGE_HOME)/build/libcv32e40p_rvvi.so
+
+###############################################################################
 # Run the yaml2make scripts
 
 ifeq ($(VERBOSE),1)
