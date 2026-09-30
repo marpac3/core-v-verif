@@ -580,14 +580,20 @@ module uvmt_cv32e40p_tb;
     .dm_halt_addr           (dut_wrap.cv32e40p_tb_wrapper_i.cv32e40p_top_i.core_i.dm_halt_addr_i)
   );
 
-    // IMPERAS DV
+    // Reference model: ImperasDV, or GVSOC (ISS=GVSOC)
     `ifndef FORMAL
     `ifdef USE_ISS
+    `ifdef USE_GVSOC
+      uvmt_cv32e40p_gvsoc_wrap #(
+        .FPU                    (CORE_PARAM_FPU)
+      ) gvsoc_dv (rvvi_if);
+    `else
       uvmt_cv32e40p_imperas_dv_wrap #(
         .FPU                    (CORE_PARAM_FPU),
         .ZFINX                  (CORE_PARAM_ZFINX),
         .SET_IDV_RECONVERGE     (SET_IDV_RECONVERGE)
       ) imperas_dv (rvvi_if);
+    `endif
     `endif
     `endif
    /**
@@ -812,7 +818,11 @@ module uvmt_cv32e40p_tb;
    initial begin
      if ($test$plusargs("USE_ISS")) begin
        #0.9ns;
+       `ifdef USE_GVSOC
+       gvsoc_dv.ref_init();
+       `else
        imperas_dv.ref_init();
+       `endif
      end
    end
    `endif

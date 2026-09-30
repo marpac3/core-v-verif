@@ -1,0 +1,28 @@
+//
+// Copyright 2026 Fondazione Chips-IT
+//
+// Licensed under the Solderpad Hardware Licence, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://solderpad.org/licenses/
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+///////////////////////////////////////
+// GVSOC reference model (ISS=GVSOC)
+// - GVSOC_BRIDGE_HOME is a checkout of the RVVI bridge of the CV32E40P model of GVSOC.
+//
+
+-f ${GVSOC_BRIDGE_HOME}/sv/gvsoc_rvvi.f
+
+// Reports the interrupt and debug inputs to the model and checks the order of the RVFI rows
+${TBSRC_HOME}/uvmt/uvmt_cv32e40p_gvsoc_decision_monitor.sv
+
+// GVSOC test bench wrapper
+${TBSRC_HOME}/uvmt/uvmt_cv32e40p_gvsoc_wrap.sv
