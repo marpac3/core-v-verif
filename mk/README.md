@@ -67,6 +67,26 @@ This UVM verification environment uses the Imperas OVPsim Instruction Set Simula
 Group Contributors.  Please contact @MikeOpenHWGroup to be added as a Contributor and
 go to the [Imperas website](http://www.imperas.com/) for installation instructions.
 
+GVSOC Reference Model (CV32E40P)
+----------------------------------------
+With `ISS=GVSOC` the CV32E40P environment uses the CV32E40P model of
+[GVSOC](https://github.com/gvsoc/gvsoc) as the reference model instead of ImperasDV. Only Questa
+is supported. `ISS=GVSOC` sets `USE_ISS=YES` unless `USE_ISS` is given.
+The `gvsoc_rvvi` bridge drives the model through the RVVI API. The flow needs these variables:
+
+| Variable             | Description |
+|----------------------|-------------|
+| GVSOC_INSTALL        | GVSOC installation, built with the modules of the bridge and the targets named in the `gvsoc` tags (`make build MODULES=$(GVSOC_BRIDGE_HOME)/gvsoc TARGETS=...`, see the README of the bridge) |
+| GVSOC_BRIDGE_HOME    | Checkout of the bridge |
+| GVSOC_RVVI_MODEL     | RVVI-API library of the bridge, by default `$(GVSOC_BRIDGE_HOME)/build/libcv32e40p_rvvi.so` |
+| GVSOC_PREPARE_FLAGS  | Optional extra options of `gvrun prepare`, such as `--trace=insn` |
+
+Before each simulation `gvrun` writes the platform configuration of the test program in
+`<run directory>/gvsoc`, from the `gvsoc` tag of the build configuration. A configuration without
+the tag is refused. The Python interpreter in the `PATH` must have the GVSOC requirements installed.
+
+* **make test TEST=hello-world SIMULATOR=vsim USE_ISS=YES ISS=GVSOC GVSOC_INSTALL=... GVSOC_BRIDGE_HOME=...**
+
 SystemVerilog Simulators
 ----------------------------------
 Any SystemVerilog simulator that implements complete support for [IEEE-1800-2017](https://ieeexplore.ieee.org/document/8299595)
@@ -346,6 +366,7 @@ The contents of the YAML file support the following tags:
 | description   | Yes      | Brief description of the intent of the build configuration |
 | compile_flags | No       | Compile flags passed to the simulator compile-step    |
 | ovpsim        | No       | Flags for the IC file for the OVPSim ISS   |
+| gvsoc         | No       | Options of `gvrun` for the GVSOC reference model (the platform target) |
 
 <br>
 The following is an example build configuration:<br>
