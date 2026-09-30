@@ -414,7 +414,8 @@ module uvmt_cv32e40p_tb;
 
   // Bind in verification modules to the design
   bind cv32e40p_core
-    uvmt_cv32e40p_interrupt_assert interrupt_assert_i(.mcause_n(cs_registers_i.mcause_n),
+    uvmt_cv32e40p_interrupt_assert #(.COREV_CLUSTER(COREV_CLUSTER))
+                                   interrupt_assert_i(.mcause_n(cs_registers_i.mcause_n),
                                                       .mip(cs_registers_i.mip),
                                                       .mie_q(cs_registers_i.mie_q),
                                                       .mie_n(cs_registers_i.mie_n),

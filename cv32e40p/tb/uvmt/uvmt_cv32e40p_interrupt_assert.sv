@@ -18,6 +18,9 @@
 module uvmt_cv32e40p_interrupt_assert  
   import uvm_pkg::*;
   import cv32e40p_pkg::*;
+  #(
+    parameter int COREV_CLUSTER = 0
+  )
   (
     
     input clk,   // Gated clock
@@ -346,10 +349,15 @@ module uvmt_cv32e40p_interrupt_assert
       ((!pending_enabled_irq && !debug_mode_q && !debug_req_i) throughout in_wfi[*40]) 
              |-> core_sleep_o;
   endproperty
-  a_wfi_assert_core_sleep_o: assert property(p_wfi_assert_core_sleep_o)
-    else
-      `uvm_error(info_tag,
-                 "Assertion of core_sleep_o did not occur within 6 clocks")
+  // With COREV_CLUSTER a WFI does not put the core to sleep, because
+  // cv32e40p_controller.sv sets debug_wfi_no_sleep_o. Only a cv.elw asserts
+  // core_sleep_o.
+  if (!COREV_CLUSTER) begin : gen_wfi_sleep
+    a_wfi_assert_core_sleep_o: assert property(p_wfi_assert_core_sleep_o)
+      else
+        `uvm_error(info_tag,
+                   "Assertion of core_sleep_o did not occur within 6 clocks")
+  end
 
   // core_sleep_o deassertion in wfi should be followed by WFI deassertion
   property p_core_sleep_deassert;
