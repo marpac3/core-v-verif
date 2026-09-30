@@ -185,8 +185,14 @@ task uvma_interrupt_drv_c::assert_irq_until_ack(int unsigned index, int unsigned
       repeat (skew) @(cntxt.vif.drv_cb);cntxt.vif.drv_cb.irq_drv[index] <= 1'b1;
 
       while (1) begin
+         bit          irq_ack;
+         int unsigned irq_id;
+
+         // Copy the sampled values, then test the copies (see irq_ack_clear)
          @(cntxt.vif.mon_cb);
-         if ((cntxt.vif.mon_cb.irq_ack && cntxt.vif.mon_cb.irq_id == index))
+         irq_ack = cntxt.vif.mon_cb.irq_ack;
+         irq_id  = cntxt.vif.mon_cb.irq_id;
+         if (irq_ack && irq_id == index)
             break;
       end
    end
@@ -218,15 +224,18 @@ endtask : deassert_irq
 
 task uvma_interrupt_drv_c::irq_ack_clear();
    while(1) begin
+      bit          irq_ack;
+      int unsigned irq_id;
+
+      // The acknowledge lasts one cycle. With "@(cb); if (cb.irq_ack)" Questa 2025.3 can
+      // test it one cycle late and miss it, so test copies of the sampled values.
       @(cntxt.vif.mon_cb);
-      if (cntxt.vif.mon_cb.irq_ack) begin
+      irq_ack = cntxt.vif.mon_cb.irq_ack;
+      irq_id  = cntxt.vif.mon_cb.irq_id;
+      if (irq_ack) begin
          // Try to get the semaphore for the irq_id,
          // If we can't get it, then this irq is managed by assert_irq_until_ack and we will ignore this ack
          // Otherwise deassert the interrupt
-         int unsigned irq_id;
-
-         irq_id  = cntxt.vif.mon_cb.irq_id;
-
          `uvm_info("IRQDRV", $sformatf("irq_ack_clear: ack for IRQ: %0d", irq_id), UVM_DEBUG);
          if (assert_until_ack_sem[irq_id].try_get(1)) begin
             `uvm_info("IRQDRV", $sformatf("irq_ack_clear: Clearing IRQ: %0d", irq_id), UVM_DEBUG);

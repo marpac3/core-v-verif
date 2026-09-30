@@ -125,12 +125,18 @@ endtask : run_phase
 
 task uvma_interrupt_mon_c::monitor_irq();
    while(1) begin
-      @(cntxt.vif.mon_cb);
+      bit          irq_ack;
+      int unsigned irq_id;
 
-      if (cntxt.vif.mon_cb.irq_ack) begin
+      // Copy the sampled values, then test the copies (see uvma_interrupt_drv_c::irq_ack_clear)
+      @(cntxt.vif.mon_cb);
+      irq_ack = cntxt.vif.mon_cb.irq_ack;
+      irq_id  = cntxt.vif.mon_cb.irq_id;
+
+      if (irq_ack) begin
          uvma_interrupt_mon_trn_c mon_trn = uvma_interrupt_mon_trn_c::type_id::create("mon_irq_trn");
          mon_trn.action = UVMA_INTERRUPT_MON_ACTION_IRQ;
-         mon_trn.id = cntxt.vif.mon_cb.irq_id;
+         mon_trn.id = irq_id;
          ap.write(mon_trn);
       end
    end
@@ -139,12 +145,17 @@ endtask : monitor_irq
 task uvma_interrupt_mon_c::monitor_irq_iss();
    if ($test$plusargs("USE_ISS")) begin
       while(1) begin
-         @(cntxt.vif.mon_cb);
+         bit          irq_ack;
+         int unsigned irq_id;
 
-         if (cntxt.vif.mon_cb.irq_ack) begin
+         @(cntxt.vif.mon_cb);
+         irq_ack = cntxt.vif.mon_cb.irq_ack;
+         irq_id  = cntxt.vif.mon_cb.irq_id;
+
+         if (irq_ack) begin
             uvma_interrupt_mon_trn_c mon_trn = uvma_interrupt_mon_trn_c::type_id::create("mon_irq_trn");
             mon_trn.action = UVMA_INTERRUPT_MON_ACTION_IRQ;
-            mon_trn.id = cntxt.vif.mon_cb.irq_id;
+            mon_trn.id = irq_id;
 
             // Wait for the ISS to enter
             wait (cntxt.vif.deferint == 1'b0);
