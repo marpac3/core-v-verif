@@ -12,6 +12,8 @@ ovpsim: >
     --override cpu/extension_CVE4P/COREV_PULP=F
     --override cpu/extension_CVE4P/COREV_CLUSTER=F
     -showinstanceparams cpu
+gvsoc: >
+    --target=cv32e40p_cosim
 cv_sw_march: rv32imc_zicsr_zifencei
 cflags: >
     -DNO_PULP

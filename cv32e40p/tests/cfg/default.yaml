@@ -14,6 +14,8 @@ ovpsim: >
     -showinstanceparams cpu
 # Debug options (add to ovpsim section as needed)
 #    --trace --tracechange --traceshowicount --tracemode --monitornets
+gvsoc: >
+    --target=cv32e40p_cosim
 cv_sw_march: rv32imc_zicsr_zifencei
 cflags: >
     -DNO_PULP
