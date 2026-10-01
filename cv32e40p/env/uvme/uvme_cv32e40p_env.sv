@@ -472,6 +472,9 @@ function void uvme_cv32e40p_env_c::connect_coverage_model();
    if (cov_model.rv32f_isa_covg != null) begin
       isacov_agent.monitor.ap.connect(cov_model.rv32f_isa_covg.mon_trn_export);
    end
+   if (cov_model.rv32x_isa_covg != null) begin
+      isacov_agent.monitor.ap.connect(cov_model.rv32x_isa_covg.mon_trn_export);
+   end
 
 endfunction: connect_coverage_model
 
