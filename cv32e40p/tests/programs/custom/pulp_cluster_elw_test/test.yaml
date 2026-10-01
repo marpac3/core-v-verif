@@ -1,0 +1,4 @@
+name: pulp_cluster_elw_test
+uvm_test: uvmt_$(CV_CORE_LC)_firmware_test_c
+description: >
+    cv.elw on the pulp_cluster configurations, the testbench keeps the cluster clock enabled
