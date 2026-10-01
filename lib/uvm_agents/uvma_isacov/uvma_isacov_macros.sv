@@ -315,4 +315,10 @@
     wildcard bins BIT4_1  = {5'b1????}; \
 }
 
+`define ISACOV_CP_BITWISE_0_0(name, field, iff_exp) \
+``name``: coverpoint(``field``) iff (``iff_exp``) { \
+    wildcard bins BIT0_0  = {1'b0}; \
+    wildcard bins BIT0_1  = {1'b1}; \
+}
+
 `endif // __UVMA_ISACOV_MACROS_SV__
