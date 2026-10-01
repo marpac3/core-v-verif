@@ -118,6 +118,7 @@ module uvmt_cv32e40p_tb;
    // Agent interfaces
    uvma_clknrst_if     clknrst_if          (); // clock and resets from the clknrst agent
    uvma_clknrst_if     clknrst_if_iss      ();
+   uvma_isacov_if      isacov_if           ();
    uvma_debug_if       debug_if            ();
    uvma_interrupt_if   interrupt_if        (); // Single interrupt interface driven by both the Interrupt Agent and Virtual Peripheral
    //uvma_interrupt_if   agt_interrupt_if    (); // Interrupts sourced by Interrupt Agent
@@ -644,6 +645,7 @@ module uvmt_cv32e40p_tb;
      uvm_config_db#(virtual uvma_obi_memory_if               )::set(.cntxt(null), .inst_name("*.env.obi_memory_instr_agent"), .field_name("vif"),              .value(obi_memory_instr_if)                             );
      uvm_config_db#(virtual uvma_obi_memory_if               )::set(.cntxt(null), .inst_name("*.env.obi_memory_data_agent"),  .field_name("vif"),              .value(obi_memory_data_if)                              );
      uvm_config_db#(virtual uvma_rvfi_instr_if               )::set(.cntxt(null), .inst_name("*.env.rvfi_agent"),             .field_name("instr_vif0"),       .value(dut_wrap.cv32e40p_tb_wrapper_i.rvfi_instr_if_0_i));
+     uvm_config_db#(virtual uvma_isacov_if                   )::set(.cntxt(null), .inst_name("*.env.isacov_agent"),           .field_name("vif"),              .value(isacov_if)                                       );
 
      // Picked up by both the cv32e40p_base_test and cv32e40p_env
      uvm_config_db#(virtual uvmt_cv32e40p_vp_status_if       )::set(.cntxt(null), .inst_name("*"),                            .field_name("vp_status_vif"),    .value(vp_status_if)                                    );
@@ -828,10 +830,10 @@ module uvmt_cv32e40p_tb;
    `endif
    `endif
 
-   //TODO verify these are correct with regards to isacov function
-   //always @(dut_wrap.cv32e40p_top_i.rvfi_instr_if_0_i.rvfi_valid) -> isacov_if.retire;
-   //assign isacov_if.instr = dut_wrap.cv32e40p_top_i.rvfi_instr_if_0_i.rvfi_insn;
-   //assign isacov_if.is_compressed = dut_wrap.cv32e40p_top_i.tracer_i.insn_compressed;
+   // uvma_isacov takes the instructions from the RVFI agent but still needs its interface,
+   // as in cv32e40x.
+   always @(dut_wrap.cv32e40p_tb_wrapper_i.rvfi_instr_if_0_i.rvfi_valid) -> isacov_if.retire;
+   assign isacov_if.instr = dut_wrap.cv32e40p_tb_wrapper_i.rvfi_instr_if_0_i.rvfi_insn;
 
    // Capture the test status and exit pulse flags
    // TODO: put this logic in the vp_status_if (makes it easier to pass to ENV)

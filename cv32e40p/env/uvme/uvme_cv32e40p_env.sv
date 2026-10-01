@@ -52,6 +52,7 @@ class uvme_cv32e40p_env_c extends uvm_env;
    uvma_obi_memory_agent_c          obi_memory_instr_agent;
    uvma_obi_memory_agent_c          obi_memory_data_agent ;
    uvma_rvfi_agent_c#(ILEN,XLEN)    rvfi_agent;
+   uvma_isacov_agent_c#(ILEN,XLEN)  isacov_agent;
 
 
 
@@ -395,6 +396,7 @@ function void uvme_cv32e40p_env_c::assign_cfg();
    uvm_config_db#(uvma_obi_memory_cfg_c      )::set(this, "obi_memory_instr_agent", "cfg", cfg.obi_memory_instr_cfg);
    uvm_config_db#(uvma_obi_memory_cfg_c      )::set(this, "obi_memory_data_agent" , "cfg", cfg.obi_memory_data_cfg );
    uvm_config_db#(uvma_rvfi_cfg_c#(ILEN,XLEN))::set(this, "rvfi_agent"            , "cfg", cfg.rvfi_cfg            );
+   uvm_config_db#(uvma_isacov_cfg_c          )::set(this, "isacov_agent"          , "cfg", cfg.isacov_cfg          );
 
 endfunction: assign_cfg
 
@@ -422,6 +424,7 @@ function void uvme_cv32e40p_env_c::create_agents();
    obi_memory_instr_agent  = uvma_obi_memory_agent_c             ::type_id::create("obi_memory_instr_agent", this);
    obi_memory_data_agent   = uvma_obi_memory_agent_c             ::type_id::create("obi_memory_data_agent" , this);
    rvfi_agent              = uvma_rvfi_agent_c#(ILEN,XLEN)       ::type_id::create("rvfi_agent"            , this);
+   isacov_agent            = uvma_isacov_agent_c#(ILEN,XLEN)     ::type_id::create("isacov_agent"          , this);
 
 endfunction: create_agents
 
@@ -461,6 +464,10 @@ endfunction: connect_predictor
 function void uvme_cv32e40p_env_c::connect_coverage_model();
 
    //interrupt_agent.monitor.ap_iss.connect(cov_model.interrupt_covg.interrupt_mon_export);
+
+   foreach (rvfi_agent.instr_mon_ap[i]) begin
+      rvfi_agent.instr_mon_ap[i].connect(isacov_agent.monitor.rvfi_instr_export);
+   end
 
 endfunction: connect_coverage_model
 

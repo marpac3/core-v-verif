@@ -81,6 +81,7 @@ class uvme_cv32e40p_cfg_c extends uvma_core_cntrl_cfg_c;
    rand uvma_obi_memory_cfg_c       obi_memory_instr_cfg;
    rand uvma_obi_memory_cfg_c       obi_memory_data_cfg;
    rand uvma_rvfi_cfg_c#(ILEN,XLEN) rvfi_cfg;
+   rand uvma_isacov_cfg_c           isacov_cfg;
    // Objects
    // TODO Add scoreboard configuration handles
    //      Ex: rand uvml_sb_cfg_c  sb_egress_cfg;
@@ -105,6 +106,7 @@ class uvme_cv32e40p_cfg_c extends uvma_core_cntrl_cfg_c;
       `uvm_field_object(obi_memory_instr_cfg , UVM_DEFAULT)
       `uvm_field_object(obi_memory_data_cfg  , UVM_DEFAULT)
       `uvm_field_object(rvfi_cfg             , UVM_DEFAULT)
+      `uvm_field_object(isacov_cfg           , UVM_DEFAULT)
       // TODO Add scoreboard cfg field macros
       //      Ex: `uvm_field_object(sb_egress_cfg , UVM_DEFAULT)
       //          `uvm_field_object(sb_ingress_cfg, UVM_DEFAULT)
@@ -321,6 +323,8 @@ class uvme_cv32e40p_cfg_c extends uvma_core_cntrl_cfg_c;
          interrupt_cfg.enabled         == 1;
          debug_cfg.enabled             == 1;
          rvfi_cfg.enabled              == 1;
+         // ISA coverage only when coverage is requested (COV=YES)
+         isacov_cfg.enabled            == cov_model_enabled;
          obi_memory_instr_cfg.enabled  == 1;
          obi_memory_data_cfg.enabled   == 1;
       }
@@ -371,7 +375,16 @@ class uvme_cv32e40p_cfg_c extends uvma_core_cntrl_cfg_c;
          obi_memory_instr_cfg.is_active == UVM_ACTIVE;
          obi_memory_data_cfg.is_active  == UVM_ACTIVE;
          rvfi_cfg.is_active             == UVM_PASSIVE;
+         isacov_cfg.is_active           == UVM_PASSIVE;
       }
+
+      isacov_cfg.seq_instr_group_x2_enabled == 1;
+      isacov_cfg.seq_instr_group_x3_enabled == 1;
+      isacov_cfg.seq_instr_group_x4_enabled == 0;
+      isacov_cfg.seq_instr_x2_enabled       == 1;
+      isacov_cfg.reg_crosses_enabled        == 0;
+      isacov_cfg.reg_hazards_enabled        == 1;
+      isacov_cfg.trn_log_enabled            == 0;
 
       if (trn_log_enabled) {
          clknrst_cfg.trn_log_enabled           == 1;
@@ -388,6 +401,7 @@ class uvme_cv32e40p_cfg_c extends uvma_core_cntrl_cfg_c;
         debug_cfg.cov_model_enabled             == 1;
         obi_memory_instr_cfg.cov_model_enabled  == 1;
         obi_memory_data_cfg.cov_model_enabled   == 1;
+        isacov_cfg.cov_model_enabled            == 1;
       }
       else {
         clknrst_cfg.cov_model_enabled           == 0;
@@ -395,6 +409,7 @@ class uvme_cv32e40p_cfg_c extends uvma_core_cntrl_cfg_c;
         debug_cfg.cov_model_enabled             == 0;
         obi_memory_instr_cfg.cov_model_enabled  == 0;
         obi_memory_data_cfg.cov_model_enabled   == 0;
+        isacov_cfg.cov_model_enabled            == 0;
       }
    }
 
@@ -448,8 +463,10 @@ function uvme_cv32e40p_cfg_c::new(string name="uvme_cv32e40p_cfg");
    obi_memory_data_cfg   = uvma_obi_memory_cfg_c::type_id::create("obi_memory_data_cfg" );
 
    rvfi_cfg = uvma_rvfi_cfg_c#(ILEN,XLEN)::type_id::create("rvfi_cfg");
+   isacov_cfg = uvma_isacov_cfg_c::type_id::create("isacov_cfg");
 
    rvfi_cfg.core_cfg = this;
+   isacov_cfg.core_cfg = this;
 
 endfunction : new
 
@@ -616,9 +633,9 @@ endfunction : configure_disable_csr_checks
 
 function void uvme_cv32e40p_cfg_c::set_unsupported_csr_mask();
    super.set_unsupported_csr_mask();
-   unsupported_csr_mask[TCONTROL] = 1;
-   unsupported_csr_mask[MCONFIGPTR] = 1;
-   unsupported_csr_mask[MSTATUSH] = 1;
+   unsupported_csr_mask[uvma_core_cntrl_pkg::TCONTROL] = 1;
+   unsupported_csr_mask[uvma_core_cntrl_pkg::MCONFIGPTR] = 1;
+   unsupported_csr_mask[uvma_core_cntrl_pkg::MSTATUSH] = 1;
 endfunction : set_unsupported_csr_mask
 
 
