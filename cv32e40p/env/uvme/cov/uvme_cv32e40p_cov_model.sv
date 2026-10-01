@@ -36,6 +36,7 @@ class uvme_cv32e40p_cov_model_c extends uvm_component;
    uvme_rv32x_hwloop_covg               rv32x_hwloop_covg;
    uvme_cv32e40p_fp_instr_covg          cv32e40p_fp_instr_covg;
    uvme_cv32e40p_zfinx_instr_covg       cv32e40p_zfinx_instr_covg;
+   uvme_rv32f_isa_covg                  rv32f_isa_covg;
 
    `uvm_component_utils_begin(uvme_cv32e40p_cov_model_c)
       `uvm_field_object(cfg  , UVM_DEFAULT)
@@ -129,6 +130,10 @@ function void uvme_cv32e40p_cov_model_c::build_phase(uvm_phase phase);
       uvm_config_db#(uvme_cv32e40p_cntxt_c)::set(this, "cv32e40p_zfinx_instr_covg", "cntxt", cntxt);
    end else if ( (cfg.rv32f_fcov_en == 1) && (cfg.zfinx_fcov_en == 1) ) begin
       `uvm_fatal("FCOV", "Illegal Config with FCOV enable for both RV32F and RV32ZFINX")
+   end
+
+   if (cfg.rv32f_fcov_en || cfg.zfinx_fcov_en) begin
+      rv32f_isa_covg = uvme_rv32f_isa_covg::type_id::create("rv32f_isa_covg", this);
    end
 
 endfunction : build_phase
