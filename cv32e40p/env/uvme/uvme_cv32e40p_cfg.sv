@@ -282,7 +282,7 @@ class uvme_cv32e40p_cfg_c extends uvma_core_cntrl_cfg_c;
       ext_a_supported        == 0;
       ext_p_supported        == 0;
       ext_v_supported        == 0;
-      ext_f_supported        == 0;
+      ext_f_supported        == (RV32F inside {cv32e40p_core_isa_list});
       ext_d_supported        == 0;
 
       ext_zba_supported == 0;
@@ -636,6 +636,13 @@ function void uvme_cv32e40p_cfg_c::set_unsupported_csr_mask();
    unsupported_csr_mask[uvma_core_cntrl_pkg::TCONTROL] = 1;
    unsupported_csr_mask[uvma_core_cntrl_pkg::MCONFIGPTR] = 1;
    unsupported_csr_mask[uvma_core_cntrl_pkg::MSTATUSH] = 1;
+
+   // Zfinx has fflags, frm and fcsr without the F extension
+   if (RV32ZFINX inside {cv32e40p_core_isa_list}) begin
+      unsupported_csr_mask[uvma_core_cntrl_pkg::FFLAGS] = 0;
+      unsupported_csr_mask[uvma_core_cntrl_pkg::FRM] = 0;
+      unsupported_csr_mask[uvma_core_cntrl_pkg::FCSR] = 0;
+   end
 endfunction : set_unsupported_csr_mask
 
 
