@@ -552,7 +552,8 @@ module uvmt_cv32e40p_tb;
   );
 
   // Instantiate debug assertions
-  uvmt_cv32e40p_debug_assert u_debug_assert(.cov_assert_if(debug_cov_assert_if));
+  uvmt_cv32e40p_debug_assert #(.COREV_CLUSTER(CORE_PARAM_COREV_CLUSTER))
+                             u_debug_assert(.cov_assert_if(debug_cov_assert_if));
 
 
   // simplify rvvi for coverage
