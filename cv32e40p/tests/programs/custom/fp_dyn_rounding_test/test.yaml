@@ -1,0 +1,4 @@
+name: fp_dyn_rounding_test
+uvm_test: uvmt_$(CV_CORE_LC)_firmware_test_c
+description: >
+    fcvt.w.s, fcvt.wu.s, fadd.s and fmul.s with rm = dyn under every valid frm give the result and flags of the static rounding mode
