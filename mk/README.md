@@ -85,6 +85,16 @@ Before each simulation `gvrun` writes the platform configuration of the test pro
 `<run directory>/gvsoc`, from the `gvsoc` tag of the build configuration. A configuration without
 the tag is refused. The Python interpreter in the `PATH` must have the GVSOC requirements installed.
 
+Limitations:
+- Interrupts and debug requests reach the model at the decision points of the RTL controller,
+  through an extension of the RVVI API (`rvviDecisionApi.h` in the bridge) that is not part of
+  the RVVI standard.
+- `cycle(h)`, `mcycle(h)`, `mip`, `mhpmcounter(h)3..31` and `hpmcounter(h)3..31` are volatile, so
+  an instruction that reads one gets the value the RTL read. Loads from the virtual peripherals at
+  `0x15001000` are volatile too.
+- With `COV=YES` the ISA coverage comes from `uvma_isacov` on the RVFI. The riscvISACOV covergroups
+  are built only with ImperasDV (`ISS=IMPERAS`).
+
 * **make test TEST=hello-world SIMULATOR=vsim USE_ISS=YES ISS=GVSOC GVSOC_INSTALL=... GVSOC_BRIDGE_HOME=...**
 
 SystemVerilog Simulators
