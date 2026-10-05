@@ -91,7 +91,8 @@ module uvmt_cv32e40p_gvsoc_wrap
                           CSR_MINSTRET      = 12'hB02, CSR_MHPMCOUNTER   = 12'hB00,
                           CSR_MCYCLEH       = 12'hB80, CSR_MINSTRETH     = 12'hB82,
                           CSR_MHPMCOUNTERH  = 12'hB80, CSR_CYCLE         = 12'hC00,
-                          CSR_INSTRET       = 12'hC02, CSR_CYCLEH        = 12'hC80,
+                          CSR_HPMCOUNTER    = 12'hC00, CSR_INSTRET       = 12'hC02,
+                          CSR_CYCLEH        = 12'hC80, CSR_HPMCOUNTERH   = 12'hC80,
                           CSR_INSTRETH      = 12'hC82, CSR_LPSTART0      = 12'hCC0,
                           CSR_LPEND0        = 12'hCC1, CSR_LPCOUNT0      = 12'hCC2,
                           CSR_LPSTART1      = 12'hCC4, CSR_LPEND1        = 12'hCC5,
@@ -243,6 +244,8 @@ module uvmt_cv32e40p_gvsoc_wrap
         for (int n = 3; n < 32; n++) begin
             void'(rvviRefCsrSetVolatile(hart_id, CSR_MHPMCOUNTER  + n));
             void'(rvviRefCsrSetVolatile(hart_id, CSR_MHPMCOUNTERH + n));
+            void'(rvviRefCsrSetVolatile(hart_id, CSR_HPMCOUNTER   + n));
+            void'(rvviRefCsrSetVolatile(hart_id, CSR_HPMCOUNTERH  + n));
         end
 
         // A load from the virtual peripherals of the testbench, such as the random number
