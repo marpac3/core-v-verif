@@ -881,6 +881,7 @@ module uvmt_cv32e40p_tb;
       longint            rvvi_metric_comparisons_gpr;
       longint            rvvi_metric_comparisons_insbin;
       longint            rvvi_metric_mismatches;
+      longint            rvvi_metric_errors;
 
       static string  red   = "\033[31m\033[1m";
       static string  green = "\033[32m\033[1m";
@@ -901,6 +902,9 @@ module uvmt_cv32e40p_tb;
         rvvi_metric_comparisons_gpr     = rvviRefMetricGet(RVVI_METRIC_COMPARISONS_GPR);
         rvvi_metric_comparisons_insbin  = rvviRefMetricGet(RVVI_METRIC_COMPARISONS_INSBIN);
         rvvi_metric_mismatches          = rvviRefMetricGet(RVVI_METRIC_MISMATCHES);
+        `ifdef USE_GVSOC
+        rvvi_metric_errors              = rvviRefMetricGet(RVVI_METRIC_ERRORS);
+        `endif
 
         // Exit handler for ImperasDV
         void'(rvviRefShutdown());
@@ -930,6 +934,15 @@ module uvmt_cv32e40p_tb;
           $display("ERROR: Reference model mismatches found!");
           $display("ERROR: Total Reference model mismatches = %0d", rvvi_metric_mismatches);
         end
+
+        `ifdef USE_GVSOC
+        // The bridge also counts errors outside the comparisons, such as a sample or a
+        // CSR write that the model refused.
+        if(rvvi_metric_errors != 0) begin
+          err_count = err_count + rvvi_metric_errors;
+          $display("ERROR: Total Reference model errors = %0d", rvvi_metric_errors);
+        end
+        `endif
 
       `endif
 
