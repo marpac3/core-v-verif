@@ -1,0 +1,4 @@
+name: smc_fetch_test
+uvm_test: uvmt_$(CV_CORE_LC)_firmware_test_c
+description: >
+    A store rewrites an instruction that already ran, and the next execution runs the new one without fence.i
